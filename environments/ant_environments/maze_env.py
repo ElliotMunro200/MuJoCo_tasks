@@ -1,13 +1,5 @@
-
 # NOTE THIS CODE IS TAKEN FROM https://github.com/tensorflow/models/tree/master/research/efficient-hrl/environments
 # and is not my code.
-
-
-
-
-
-
-
 
 import os
 import tempfile
@@ -16,10 +8,10 @@ import math
 import numpy as np
 import gym
 
-from ant_environments import maze_env_utils
+from environments.ant_environments import maze_env_utils
 
 # Directory that contains mujoco xml files.
-MODEL_DIR = 'environments/assets'
+MODEL_DIR = '/environments/ant_environments/assets'
 
 
 class MazeEnv(gym.Env):
@@ -44,24 +36,24 @@ class MazeEnv(gym.Env):
       **kwargs):
     self._maze_id = maze_id
 
+    # my changes
+    self.metadata = {
+        "render_modes": ["human", "rgb_array", "depth_array"],
+        "render_fps": int(np.round(1.0 / 0.02)),
+    }
+
     model_cls = self.__class__.MODEL_CLASS
     if model_cls is None:
       raise "MODEL_CLASS unspecified!"
+
+    # Deep: /data2/elliotmunro/mujocotasks/MuJoCo_tasks
+    # Desktop: /home/elliot/mujocotasks/MuJoCo_tasks
+    my_cwd = os.getcwd()
+    print(f"CWD: {my_cwd}")
+    # environments/ant_environments/assets/ant.xml
     xml_path = os.path.join(MODEL_DIR, model_cls.FILE)
 
-
-    import sys
-    sys.path.insert(0, '/Users/petroschristodoulou/Documents/Deep_RL_Implementations/Environments')
-    sys.path.insert(0, '/Users/petroschristodoulou/Documents/Deep_RL_Implementations/Environments/environments')
-
-    # new_path = "/Environments/environments/asserts/ant.xml" # + xml_path
-    # print("New path ", new_path )
-
-    print(os.getcwd())
-    print(xml_path)
-    # print()
-
-    tree = ET.parse("/Users/petroschristodoulou/Documents/Deep_RL_Implementations/Environments/ant_environments/" + xml_path[13:]) # ET.parse(xml_path)
+    tree = ET.parse(my_cwd + xml_path)
     worldbody = tree.find(".//worldbody")
 
     self.MAZE_HEIGHT = height = maze_height

@@ -19,7 +19,7 @@ class Base_Agent(object):
         # if self.debug_mode: self.tensorboard = SummaryWriter()
         self.config = config
         self.set_random_seeds(config.seed)
-        self.environment = config.environment
+        self.environment = config.environment()
         self.environment_title = self.get_environment_title()
         self.action_types = "DISCRETE" if self.environment.action_space.dtype == np.int64 else "CONTINUOUS"
         self.action_size = int(self.get_action_size())
@@ -39,7 +39,6 @@ class Base_Agent(object):
         self.max_episode_score_seen = float("-inf")
         self.episode_number = 0
         self.device = "cuda:0" if config.use_GPU else "cpu"
-        self.visualise_results_boolean = config.visualise_individual_results
         self.global_step_number = 0
         self.turn_off_exploration = False
         gym.logger.set_level(40)  # stops it from printing an unnecessary warning
@@ -92,7 +91,6 @@ class Base_Agent(object):
 
     def get_score_required_to_win(self):
         """Gets average score required to win game"""
-        print("TITLE ", self.environment_title)
         if self.environment_title == "FetchReach": return -5
         if self.environment_title in ["AntMaze", "Hopper", "Walker2d"]:
             print("Score required to win set to infinity therefore no learning rate annealing will happen")
@@ -182,7 +180,7 @@ class Base_Agent(object):
 
     def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True):
         """Runs game to completion n times and then summarises results and saves model (if asked to)"""
-        if num_episodes is None: num_episodes = self.config.num_episodes_to_run
+        if num_episodes is None: num_episodes = self.config.num_episodes_per_run
         start = time.time()
         while self.episode_number < num_episodes:
             self.reset_game()
@@ -222,7 +220,7 @@ class Base_Agent(object):
 
     def print_rolling_result(self):
         """Prints out the latest episode results"""
-        text = """"\r Episode {0}, Score: {3: .2f}, Max score seen: {4: .2f}, Rolling score: {1: .2f}, Max rolling score seen: {2: .2f}"""
+        text = """\r Episode {0}, Score: {3: .1f}, Max score seen: {4: .1f}, Rolling score: {1: .1f}, Max rolling score seen: {2: .1f}"""
         sys.stdout.write(text.format(len(self.game_full_episode_scores), self.rolling_results[-1], self.max_rolling_score_seen,
                                      self.game_full_episode_scores[-1], self.max_episode_score_seen))
         sys.stdout.flush()
