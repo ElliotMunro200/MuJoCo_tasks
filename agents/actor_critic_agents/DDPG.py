@@ -29,7 +29,7 @@ class DDPG(Base_Agent):
         self.exploration_strategy = OU_Noise_Exploration(self.config)
 
     def step(self):
-        """Runs a step in the game"""
+        """Runs a step in the game, until the episode/game is finished"""
         while not self.done:
             # print("State ", self.state.shape)
             self.action = self.pick_action()
@@ -41,7 +41,10 @@ class DDPG(Base_Agent):
                     self.actor_learn(states)
             self.save_experience()
             self.state = self.next_state #this is to set the state for the next iteration
+            self.episode_step_number += 1
             self.global_step_number += 1
+        #print(f"FINISHED EPISODE OF LENGTH: {self.episode_step_number}")
+        #self.episodic_rewards.append
         self.episode_number += 1
 
     def sample_experiences(self):

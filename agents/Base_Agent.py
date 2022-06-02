@@ -158,6 +158,7 @@ class Base_Agent(object):
         self.action = None
         self.reward = None
         self.done = False
+        self.episode_step_number = 0
         self.total_episode_score_so_far = 0
         self.episode_states = []
         self.episode_rewards = []
@@ -179,16 +180,19 @@ class Base_Agent(object):
         self.episode_dones.append(self.done)
 
     def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True):
-        """Runs game to completion n times and then summarises results and saves model (if asked to)"""
+        """Runs game to completion (one episode) n times and then summarises results and saves model (if asked to)"""
         if num_episodes is None: num_episodes = self.config.num_episodes_per_run
         start = time.time()
         while self.episode_number < num_episodes:
+            # sets up for new episode
             self.reset_game()
+            # executes new episode
             self.step()
             if save_and_print_results: self.save_and_print_result()
         time_taken = time.time() - start
         if show_whether_achieved_goal: self.show_whether_achieved_goal()
         if self.config.save_model: self.locally_save_policy()
+        print(f"TOTAL GLOBAL STEPS: {self.global_step_number}")
         return self.game_full_episode_scores, self.rolling_results, time_taken
 
     def conduct_action(self, action):
@@ -220,7 +224,7 @@ class Base_Agent(object):
 
     def print_rolling_result(self):
         """Prints out the latest episode results"""
-        text = """\r Episode {0}, Score: {3: .1f}, Max score seen: {4: .1f}, Rolling score: {1: .1f}, Max rolling score seen: {2: .1f}"""
+        text = """\r Episode {0}, Score: {3: .1f}, Max score seen: {4: .1f}, Rolling score: {1: .1f}, Max rolling score seen: {2: .1f}\n"""
         sys.stdout.write(text.format(len(self.game_full_episode_scores), self.rolling_results[-1], self.max_rolling_score_seen,
                                      self.game_full_episode_scores[-1], self.max_episode_score_seen))
         sys.stdout.flush()
