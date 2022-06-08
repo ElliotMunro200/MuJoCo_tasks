@@ -37,7 +37,7 @@ class DIAYN(Base_Agent):
         self.agent_config.environment = DIAYN_Skill_Wrapper(self.environment, self.num_skills, self)
         self.agent_config.hyperparameters = self.hyperparameters["AGENT"]
         self.agent_config.hyperparameters["do_evaluation_iterations"] = False
-        self.agent = SAC(self.agent_config)  #We have to use SAC because it involves maximising the policy's entropy over actions which is also a part of DIAYN
+        self.agent = SAC(self.agent_config) # We have to use SAC because it involves maximising the policy's entropy over actions which is also a part of DIAYN
 
         self.timesteps_to_give_up_control_for = self.hyperparameters["MANAGER"]["timesteps_to_give_up_control_for"]
         self.manager_agent_config = config
