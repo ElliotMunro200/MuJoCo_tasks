@@ -29,8 +29,9 @@ class Trainer(object):
         print(f"AGENT NAME: {self.agent_name}")
         print(f"AGENT GROUP: {self.agent_group}")
         print(f"RANDOM SEED: {self.seed}")
-        print(f"HYPERPARAMETERS: \n {actor_str}: {self.hyperparameters[actor_str]} "
-              f"\n {critic_str}: {self.hyperparameters[critic_str]}")
+        print(f"HYPERPARAMETERS: {self.hyperparameters}")
+              # f"\n {actor_str}: {self.hyperparameters[actor_str]} "
+              # f"\n {critic_str}: {self.hyperparameters[critic_str]}")
 
         agent_results = []
         agent_config = copy.deepcopy(self.config)
