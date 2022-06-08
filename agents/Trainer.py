@@ -30,11 +30,12 @@ class Trainer(object):
         print(f"AGENT GROUP: {self.agent_group}")
         print(f"RANDOM SEED: {self.seed}")
         print(f"HYPERPARAMETERS: {self.hyperparameters}")
+                # make the verbosity general across agent types. Below is only for AC methods.
               # f"\n {actor_str}: {self.hyperparameters[actor_str]} "
               # f"\n {critic_str}: {self.hyperparameters[critic_str]}")
 
         agent_results = []
-        agent_config = copy.deepcopy(self.config)
+        agent_config = self.config
         if agent_config.wandb:
             writer = self.wandb_logger(agent_config)
         agent = agent_config.agent_class(agent_config)

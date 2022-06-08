@@ -27,23 +27,23 @@ class DIAYN(Base_Agent):
         self.training_mode = True
         self.num_skills = config.hyperparameters["num_skills"]
         self.unsupervised_episodes = config.hyperparameters["num_unsupservised_episodes"]
-        self.supervised_episodes = config.num_episodes_to_run - self.unsupervised_episodes
+        self.supervised_episodes = config.num_episodes_per_run - self.unsupervised_episodes
 
         assert self.hyperparameters["DISCRIMINATOR"]["final_layer_activation"] == None, "Final layer activation for disciminator should be None"
         self.discriminator = self.create_NN(self.state_size, self.num_skills, key_to_use="DISCRIMINATOR")
         self.discriminator_optimizer = optim.Adam(self.discriminator.parameters(),
                                               lr=self.hyperparameters["DISCRIMINATOR"]["learning_rate"])
-        self.agent_config = copy.deepcopy(config)
-        self.agent_config.environment = DIAYN_Skill_Wrapper(copy.deepcopy(self.environment), self.num_skills, self)
-        self.agent_config.hyperparameters = self.agent_config.hyperparameters["AGENT"]
+        self.agent_config = config
+        self.agent_config.environment = DIAYN_Skill_Wrapper(self.environment, self.num_skills, self)
+        self.agent_config.hyperparameters = self.hyperparameters["AGENT"]
         self.agent_config.hyperparameters["do_evaluation_iterations"] = False
         self.agent = SAC(self.agent_config)  #We have to use SAC because it involves maximising the policy's entropy over actions which is also a part of DIAYN
 
         self.timesteps_to_give_up_control_for = self.hyperparameters["MANAGER"]["timesteps_to_give_up_control_for"]
-        self.manager_agent_config = copy.deepcopy(config)
-        self.manager_agent_config.environment = DIAYN_Manager_Agent_Wrapper(copy.deepcopy(self.environment), self.agent,
+        self.manager_agent_config = config
+        self.manager_agent_config.environment = DIAYN_Manager_Agent_Wrapper(self.environment, self.agent,
                                                                             self.timesteps_to_give_up_control_for, self.num_skills)
-        self.manager_agent_config.hyperparameters = self.manager_agent_config.hyperparameters["MANAGER"]
+        self.manager_agent_config.hyperparameters = self.hyperparameters["MANAGER"]
         self.manager_agent = DDQN(self.manager_agent_config)
 
     def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True):
@@ -77,7 +77,7 @@ class DIAYN_Skill_Wrapper(Wrapper):
         self.num_skills = num_skills
         self.meta_agent = meta_agent
         self.prior_probability_of_skill = 1.0 / self.num_skills #Each skill equally likely to be chosen
-        self._max_episode_steps = self.env._max_episode_steps
+        self._max_episode_steps = 1000 # self.env._max_episode_steps
 
     def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)

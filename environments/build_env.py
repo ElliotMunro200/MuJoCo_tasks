@@ -97,25 +97,22 @@ def name_of_run(env_id, agent_name, seed, given_name):
 
 
 def build_env(env_id, env_type, agent_name, capture_video, run_name):
-    def thunk():
-        if env_type == "Basic":
-            env = gym.make(env_id)
-            print("[~~Basic~~Env~~Built~~]")
-        elif env_type == "AntNav":
-            # returns a wrapped AntNav gym env
-            env = create_maze_env(env_id)
-            print("[~~AntNav~~Env~~Built~~]")
-        else:
-            raise ValueError("Wrong environment name")
-        env = gym.wrappers.RecordEpisodeStatistics(env)
-        if capture_video:
-            env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-            print("CAPTURING VIDEO...")
-        # see if agent needs env flattening
-        if env_has_changeable_goals(env) and ("HER" not in agent_name):
-            env = gym.wrappers.FlattenDictWrapper(env, dict_keys=["observation", "desired_goal"])
-            print("Flattening changeable-goal environment for agent {}".format(agent_name))
+    if env_type == "Basic":
+        env = gym.make(env_id)
+        print("[~~Basic~~Env~~Built~~]")
+    elif env_type == "AntNav":
+        # returns a wrapped AntNav gym env
+        env = create_maze_env(env_id)
+        print("[~~AntNav~~Env~~Built~~]")
+    else:
+        raise ValueError("Wrong environment name")
+    env = gym.wrappers.RecordEpisodeStatistics(env)
+    if capture_video:
+        env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+        print("CAPTURING VIDEO...")
+    # see if agent needs env flattening
+    if env_has_changeable_goals(env) and ("HER" not in agent_name):
+        env = gym.wrappers.FlattenDictWrapper(env, dict_keys=["observation", "desired_goal"])
+        print("Flattening changeable-goal environment for agent {}".format(agent_name))
 
-        return env
-
-    return thunk
+    return env
