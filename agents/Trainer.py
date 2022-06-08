@@ -22,18 +22,22 @@ class Trainer(object):
 
     def run_game_for_agent(self):
         """Runs a game for a given agent, saving the results in self.results"""
+        actor_str = "Actor"
+        critic_str = "Critic"
         print(f"ENV ID: {self.env_id}")
         print(f"ENV TYPE: {self.env_type}")
         print(f"AGENT NAME: {self.agent_name}")
         print(f"AGENT GROUP: {self.agent_group}")
         print(f"RANDOM SEED: {self.seed}")
-        print(f"HYPERPARAMETERS: {self.hyperparameters}")
+        print(f"HYPERPARAMETERS: \n {actor_str}: {self.hyperparameters[actor_str]} "
+              f"\n {critic_str}: {self.hyperparameters[critic_str]}")
 
         agent_results = []
         agent_config = copy.deepcopy(self.config)
         if agent_config.wandb:
             writer = self.wandb_logger(agent_config)
         agent = agent_config.agent_class(agent_config)
+        # CHECK HYPERPARAMETERS ARE WHAT THEY SHOULD BE
         game_scores, rolling_scores, time_taken = agent.run_n_episodes()
         agent_results.append([game_scores, rolling_scores, len(rolling_scores), -1 * max(rolling_scores), time_taken])
         if agent_config.wandb:
