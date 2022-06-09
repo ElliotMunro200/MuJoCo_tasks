@@ -1,5 +1,6 @@
 import argparse
 from environments.build_env import env_dict, agent_dict, def_hps, set_seed, name_of_run, build_env
+import copy
 
 class Config(object):
     """Object to hold the config requirements for a MuJoCo experiment"""

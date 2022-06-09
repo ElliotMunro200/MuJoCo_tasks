@@ -19,7 +19,7 @@ class Base_Agent(object):
         # if self.debug_mode: self.tensorboard = SummaryWriter()
         self.config = config
         self.set_random_seeds(config.seed)
-        self.environment = config.environment
+        self.environment = config.environment()
         self.environment_title = self.get_environment_title()
         self.action_types = "DISCRETE" if self.environment.action_space.dtype == np.int64 else "CONTINUOUS"
         self.action_size = int(self.get_action_size())
@@ -39,6 +39,7 @@ class Base_Agent(object):
         self.max_episode_score_seen = float("-inf")
         self.episode_number = 0
         self.device = "cuda:0" if config.GPU else "cpu"
+        print(f"DEVICE: {self.device}")
         self.global_step_number = 0
         self.turn_off_exploration = False
         gym.logger.set_level(40)  # stops it from printing an unnecessary warning
@@ -104,7 +105,7 @@ class Base_Agent(object):
 
     def get_trials(self):
         """Gets the number of trials to average a score over"""
-        if self.environment_title in ["AntMaze", "FetchReach", "Hopper", "Walker2d", "CartPole"]: return 100
+        if self.environment_title in ["AntMaze", "FetchReach", "Hopper", "Walker2d", "CartPole", "MountainCarContinuous"]: return 100
         try: return self.environment.unwrapped.trials
         except AttributeError: return self.environment.spec.trials
 

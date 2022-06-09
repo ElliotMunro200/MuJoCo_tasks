@@ -33,17 +33,16 @@ class DIAYN(Base_Agent):
         self.discriminator = self.create_NN(self.state_size, self.num_skills, key_to_use="DISCRIMINATOR")
         self.discriminator_optimizer = optim.Adam(self.discriminator.parameters(),
                                               lr=self.hyperparameters["DISCRIMINATOR"]["learning_rate"])
-        self.agent_config = config
-        self.agent_config.environment = DIAYN_Skill_Wrapper(self.environment, self.num_skills, self)
-        self.agent_config.hyperparameters = self.hyperparameters["AGENT"]
+        self.agent_config = copy.deepcopy(config)
+        self.agent_config.environment = self.skill_function
+        self.agent_config.hyperparameters = self.agent_config.hyperparameters["AGENT"]
         self.agent_config.hyperparameters["do_evaluation_iterations"] = False
         self.agent = SAC(self.agent_config) # We have to use SAC because it involves maximising the policy's entropy over actions which is also a part of DIAYN
 
         self.timesteps_to_give_up_control_for = self.hyperparameters["MANAGER"]["timesteps_to_give_up_control_for"]
-        self.manager_agent_config = config
-        self.manager_agent_config.environment = DIAYN_Manager_Agent_Wrapper(self.environment, self.agent,
-                                                                            self.timesteps_to_give_up_control_for, self.num_skills)
-        self.manager_agent_config.hyperparameters = self.hyperparameters["MANAGER"]
+        self.manager_agent_config = copy.deepcopy(config)
+        self.manager_agent_config.environment = self.manager_function
+        self.manager_agent_config.hyperparameters = self.manager_agent_config.hyperparameters["MANAGER"]
         self.manager_agent = DDQN(self.manager_agent_config)
 
     def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True):
@@ -68,6 +67,15 @@ class DIAYN(Base_Agent):
         predicted_probabilities_unnormalised = self.discriminator(torch.Tensor(next_state).unsqueeze(0))
         probability_of_correct_skill = F.softmax(predicted_probabilities_unnormalised)[:, skill]
         return  probability_of_correct_skill.item(), predicted_probabilities_unnormalised
+
+    def skill_function(self):
+        env = DIAYN_Skill_Wrapper(self.environment, self.num_skills, self)
+        return env
+
+    def manager_function(self):
+        env = DIAYN_Manager_Agent_Wrapper(self.environment, self.agent,
+                                          self.timesteps_to_give_up_control_for, self.num_skills)
+        return env
 
 class DIAYN_Skill_Wrapper(Wrapper):
     """Open AI gym wrapper to help create a pretraining environment in which to train diverse skills according to the
@@ -99,7 +107,6 @@ class DIAYN_Skill_Wrapper(Wrapper):
         probability_correct_skill, disciminator_outputs =  self.meta_agent.get_predicted_probability_of_skill(self.skill, next_state)
         new_reward = np.log(probability_correct_skill + 1e-8) - np.log(self.prior_probability_of_skill)
         return new_reward, disciminator_outputs
-
 
 class DIAYN_Manager_Agent_Wrapper(Wrapper):
     """Environment wrapper for the meta agent. The meta agent uses this environment to take in the state, decide on a skill
