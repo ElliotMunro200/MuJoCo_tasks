@@ -35,7 +35,7 @@ def parse_args():
     parser.add_argument("--run_name", type=str, default=None, help="The experiment run name")
     parser.add_argument("--num_episodes_per_run", type=int, default=400, help="number of episodes per run/game/experim")
     parser.add_argument("--wandb", action='store_true', help="Whether to use WandB logging and tracking")
-    parser.add_argument("--wandb_project_name", type=str, default="MuJoCo_tasks-tests", help="WandB project name")
+    parser.add_argument("--wandb_project_name", type=str, default="MuJoCo_tasks", help="WandB project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="WandB entity")
     parser.add_argument("--capture_video", action='store_true', help="Whether to capture video")
     parser.add_argument("--GPU", action='store_true', help="Whether or not to use GPU")
