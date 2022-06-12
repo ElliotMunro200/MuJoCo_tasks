@@ -12,7 +12,7 @@ def arguments():
     parser.add_argument("--num_episodes_per_run", type=int, default=10, help="Number of episodes to perform per run")
     parser.add_argument("--wandb", action='store_true', help="If to perform WandB logging")
     parser.add_argument("--capture_video", action='store_true', help="If to capture a video, send to WandB")
-    parser.add_argument("--use_GPU", action='store_true', help="If to use GPU or not")
+    parser.add_argument("--GPU", action='store_true', help="If to use GPU or not")
     runs_args = parser.parse_args()
     return runs_args
 
@@ -29,7 +29,7 @@ if __name__ == "__main__":
         call_list.append("--wandb")
     if args.capture_video:
         call_list.append("--capture_video")
-    if args.use_GPU:
+    if args.GPU:
         call_list.append("--GPU")
     for run in range(args.num_runs):
         call_list.append(f"--seed={run+1}")

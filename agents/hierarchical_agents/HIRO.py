@@ -32,23 +32,23 @@ class HIRO(Base_Agent):
         self.lower_level_agent_config = copy.deepcopy(config)
         self.lower_level_agent_config.hyperparameters = self.lower_level_agent_config.hyperparameters["LOWER_LEVEL"]
 
-        self.lower_level_agent_config.environment = Lower_Level_Agent_Environment_Wrapper(self.environment, self, self.max_sub_policy_timesteps)
+        self.lower_level_agent_config.environment = self.lower_level_env
         self.lower_level_agent = DDPG(self.lower_level_agent_config)
 
         self.lower_level_agent.average_score_required_to_win = float("inf")
 
         self.higher_level_agent_config = copy.deepcopy(config)
         self.higher_level_agent_config.hyperparameters = self.higher_level_agent_config.hyperparameters["HIGHER_LEVEL"]
-        self.higher_level_agent_config.environment = Higher_Level_Agent_Environment_Wrapper(self.environment, self)
+        self.higher_level_agent_config.environment = self.higher_level_env
         self.higher_level_agent = HIRO_Higher_Level_DDPG_Agent(self.higher_level_agent_config, self.lower_level_agent.actor_local)
 
         self.step_lower_level_states = []
         self.step_lower_level_action_seen = []
 
-
     def run_n_episodes(self):
         """Runs game to completion n times and then summarises results and saves model (if asked to)"""
-        self.higher_level_agent.run_n_episodes(self.config.num_episodes_to_run)
+        full_episode_scores, rolling_results, time_taken = self.higher_level_agent.run_n_episodes(self.config.num_episodes_per_run)
+        return full_episode_scores, rolling_results, time_taken
 
     @staticmethod
     def goal_transition(state, goal, next_state):
@@ -58,6 +58,14 @@ class HIRO(Base_Agent):
     def save_higher_level_experience(self):
         self.higher_level_agent.step_lower_level_states = self.step_lower_level_states
         self.higher_level_agent.step_lower_level_action_seen = self.step_lower_level_action_seen
+
+    def lower_level_env(self):
+        env = Lower_Level_Agent_Environment_Wrapper(self.environment, self, self.max_sub_policy_timesteps)
+        return env
+
+    def higher_level_env(self):
+        env = Higher_Level_Agent_Environment_Wrapper(self.environment, self)
+        return env
 
 class HIRO_Higher_Level_DDPG_Agent(DDPG):
     """Extends DDPG so that it can function as the higher level agent in the HIRO hierarchical RL algorithm. This only involves
@@ -76,7 +84,7 @@ class HIRO_Higher_Level_DDPG_Agent(DDPG):
         memory.add_experience(*experience)
 
     def sample_experiences(self):
-        experiences = self.memory.produce_action_and_action_info(separate_out_data_types=False)
+        experiences = self.memory.sample(separate_out_data_types=False)
         assert len(experiences[0].state) == self.hyperparameters["max_lower_level_timesteps"] or experiences[0].done
         assert experiences[0].state[0].shape[0] == self.state_size * 2
         assert len(experiences[0].action) == self.hyperparameters["max_lower_level_timesteps"] or experiences[0].done
@@ -144,7 +152,7 @@ class HIRO_Higher_Level_DDPG_Agent(DDPG):
         and goal as inputs"""
         state_and_goal = torch.from_numpy(np.concatenate((state, goal))).float().unsqueeze(0).to(self.device)
         action_would_have_taken = self.lower_level_policy(state_and_goal).detach()
-        return -0.5 * torch.norm(action - action_would_have_taken, 2)**2
+        return -0.5 * torch.norm(torch.tensor(action) - action_would_have_taken, 2)**2
 
 
 class Higher_Level_Agent_Environment_Wrapper(Wrapper):
@@ -167,7 +175,7 @@ class Higher_Level_Agent_Environment_Wrapper(Wrapper):
         self.HIRO_agent.step_lower_level_action_seen = []
 
         self.HIRO_agent.goal = goal
-        self.HIRO_agent.lower_level_agent.episode_number = 0 #must reset lower level agent to 0 episodes completed otherwise won't run more episodes
+        self.HIRO_agent.lower_level_agent.episode_number = 0 # must reset lower level agent to 0 episodes completed otherwise won't run more episodes
         self.HIRO_agent.lower_level_agent.run_n_episodes(num_episodes=1, show_whether_achieved_goal=False, save_and_print_results=False)
 
         self.HIRO_agent.save_higher_level_experience()

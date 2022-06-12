@@ -105,9 +105,10 @@ class Base_Agent(object):
 
     def get_trials(self):
         """Gets the number of trials to average a score over"""
-        if self.environment_title in ["AntMaze", "FetchReach", "Hopper", "Walker2d", "CartPole", "MountainCarContinuous"]: return 100
         try: return self.environment.unwrapped.trials
-        except AttributeError: return self.environment.spec.trials
+        except AttributeError: pass
+        try: return self.environment.spec.trials
+        except AttributeError: return 100
 
     def setup_logger(self):
         """Sets up the logger"""

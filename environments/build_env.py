@@ -21,27 +21,27 @@ from environments.hyperparameters_for_agent import chosen_hyperparameters
 
 def env_dict(env_id, key):
     e_dict = {
-        "Ant-v3": {"type": "Basic", "agents": ["DDPG"]}, # initialize like walker2d?
-        "Ant-v4": {"type": "Basic", "agents": ["DDPG"]}, # initialize like walker2d?
-        "HalfCheetah-v3": {"type": "Basic", "agents": ["DDPG"]}, # initialize like walker2d?
-        "HalfCheetah-v4": {"type": "Basic", "agents": ["DDPG"]}, # initialize like walker2d?
+        "Ant-v3": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
+        "Ant-v4": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
+        "HalfCheetah-v3": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
+        "HalfCheetah-v4": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
         "Hopper-v3": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
         "Hopper-v4": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
-        "Humanoid-v3": {"type": "Basic", "agents": ["DDPG"]},
-        "Humanoid-v4": {"type": "Basic", "agents": ["DDPG"]},
-        "HumanoidStandup-v4": {"type": "Basic", "agents": ["DDPG"]},
-        "InvertedDoublePendulum-v4": {"type": "Basic", "agents": ["DDPG"]},
-        "InvertedPendulum-v4": {"type": "Basic", "agents": ["DDPG"]},
+        "Humanoid-v3": {"type": "Basic", "agents": ["DDPG", "TD3"]},
+        "Humanoid-v4": {"type": "Basic", "agents": ["DDPG", "TD3"]},
+        "HumanoidStandup-v4": {"type": "Basic", "agents": ["DDPG", "TD3"]},
+        "InvertedDoublePendulum-v4": {"type": "Basic", "agents": ["DDPG", "TD3"]},
+        "InvertedPendulum-v4": {"type": "Basic", "agents": ["DDPG", "TD3"]},
         "MountainCarContinuous-v0": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3"]},
-        "Pusher-v4": {"type": "Basic", "agents": ["DDPG"]},
-        "Reacher-v4": {"type": "Basic", "agents": ["DDPG", "HIRO"]},
-        "Swimmer-v3": {"type": "Basic", "agents": ["DDPG"]},
-        "Swimmer-v4": {"type": "Basic", "agents": ["DDPG"]},
-        "Walker2d-v3": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN"]},
-        "Walker2d-v4": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN"]},
-        "AntFall": {"type": "AntNav", "agents": ["DDPG"]},
-        "AntMaze": {"type": "AntNav", "agents": ["DDPG"]},
-        "AntPush": {"type": "AntNav", "agents": ["DDPG"]},
+        "Pusher-v4": {"type": "Basic", "agents": ["DDPG", "TD3"]},
+        "Reacher-v4": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
+        "Swimmer-v3": {"type": "Basic", "agents": ["DDPG", "TD3"]},
+        "Swimmer-v4": {"type": "Basic", "agents": ["DDPG", "TD3"]},
+        "Walker2d-v3": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
+        "Walker2d-v4": {"type": "Basic", "agents": ["DDPG", "SAC", "PPO", "TD3", "DIAYN", "HIRO"]},
+        "AntFall": {"type": "AntNav", "agents": ["DDPG", "TD3", "DIAYN", "HIRO"]},
+        "AntMaze": {"type": "AntNav", "agents": ["DDPG", "TD3", "DIAYN", "HIRO"]},
+        "AntPush": {"type": "AntNav", "agents": ["DDPG", "TD3", "DIAYN", "HIRO"]},
     }
     env_info = e_dict[env_id][key]
     return env_info
