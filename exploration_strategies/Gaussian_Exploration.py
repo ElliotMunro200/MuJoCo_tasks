@@ -19,7 +19,7 @@ class Gaussian_Exploration(Base_Exploration_Strategy):
         action_noise = action_noise.squeeze(-1)
         clipped_action_noise = torch.clamp(action_noise, min=-self.action_noise_clipping_range,
                                            max=self.action_noise_clipping_range)
-        action += clipped_action_noise
+        action = torch.add(action, clipped_action_noise)
         return action
 
     def add_exploration_rewards(self, reward_info):
