@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument("--randomise_random_seed", action='store_true', help="Use unknown random seeds?")
     parser.add_argument("--seed", type=int, default=1, help="The experiment seed")
     parser.add_argument("--run_name", type=str, default=None, help="The experiment run name")
-    parser.add_argument("--num_episodes_per_run", type=int, default=400, help="number of episodes per run/game/experim")
+    parser.add_argument("--num_episodes_per_run", type=int, default=5, help="number of episodes per run/game/experim")
     parser.add_argument("--wandb", action='store_true', help="Whether to use WandB logging and tracking")
     parser.add_argument("--wandb_project_name", type=str, default="MuJoCo_tasks", help="WandB project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="WandB entity")

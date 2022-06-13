@@ -84,7 +84,9 @@ def set_seed(randomize, given_seed):
 
 def env_has_changeable_goals(env):
     """Determines whether the environment is such that for each episode there is a different goal or not.
-    If so, env.reset() will return return_info in the form of a dict."""
+    If there is a different goal each episode, there will be no return_info,
+    and env.reset() will return 'ob' in the form of a dict."""
+    print(f"ENV HAS CHANGEABLE GOALS: {isinstance(env.reset(), dict)}")
     return isinstance(env.reset(), dict)
 
 
