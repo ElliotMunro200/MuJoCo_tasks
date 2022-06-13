@@ -10,12 +10,12 @@ class Gaussian_Exploration(Base_Exploration_Strategy):
         self.action_noise_std = self.config.hyperparameters["action_noise_std"]
         self.action_noise_distribution = Normal(torch.Tensor([0.0]), torch.Tensor([self.action_noise_std]))
         self.action_noise_clipping_range = self.config.hyperparameters["action_noise_clipping_range"]
-
+        self.device = config.GPU
 
     def perturb_action_for_exploration_purposes(self, action_info):
         """Perturbs the action of the agent to encourage exploration"""
         action = action_info["action"]
-        action_noise = self.action_noise_distribution.sample(sample_shape=action.shape)
+        action_noise = self.action_noise_distribution.sample(sample_shape=action.shape).to(self.device)
         action_noise = action_noise.squeeze(-1)
         clipped_action_noise = torch.clamp(action_noise, min=-self.action_noise_clipping_range,
                                            max=self.action_noise_clipping_range)
