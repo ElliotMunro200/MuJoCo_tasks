@@ -10,7 +10,7 @@ class Gaussian_Exploration(Base_Exploration_Strategy):
         self.action_noise_std = self.config.hyperparameters["action_noise_std"]
         self.action_noise_distribution = Normal(torch.Tensor([0.0]), torch.Tensor([self.action_noise_std]))
         self.action_noise_clipping_range = self.config.hyperparameters["action_noise_clipping_range"]
-        self.device = config.GPU
+        self.device = "cuda:0" if config.GPU else "cpu"
 
     def perturb_action_for_exploration_purposes(self, action_info):
         """Perturbs the action of the agent to encourage exploration"""
