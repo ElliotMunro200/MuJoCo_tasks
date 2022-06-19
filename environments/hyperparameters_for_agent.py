@@ -268,7 +268,12 @@ config_hyperparameters_reacher_AC = {
         "action_noise_clipping_range": 0.5,  # for TD3
         "update_every_n_steps": 1,
         "learning_updates_per_learning_session": 1,
-        "clip_rewards": False
+        "clip_rewards": False,
+	"automatically_tune_entropy_hyperparameter": True,
+	"min_steps_before_learning": 400,
+        "entropy_term_weight": None,
+        "add_extra_noise": False,
+        "do_evaluation_iterations": True
     }
 }
 
