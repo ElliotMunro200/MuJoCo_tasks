@@ -58,7 +58,7 @@ class DIAYN(Base_Agent):
         assert isinstance(skill, int)
         assert discriminator_outputs.shape[0] == 1
         assert discriminator_outputs.shape[1] == self.num_skills
-        loss = nn.CrossEntropyLoss()(discriminator_outputs, torch.Tensor([skill]).long())
+        loss = nn.CrossEntropyLoss()(discriminator_outputs, torch.Tensor([skill]).long().to(self.device))
         self.take_optimisation_step(self.discriminator_optimizer, self.discriminator, loss,
                                     self.hyperparameters["DISCRIMINATOR"]["gradient_clipping_norm"])
 
