@@ -64,9 +64,9 @@ class DIAYN(Base_Agent):
 
     def get_predicted_probability_of_skill(self, skill, next_state):
         """Gets the probability that the disciminator gives to the correct skill"""
-        predicted_probabilities_unnormalised = self.discriminator(torch.Tensor(next_state).unsqueeze(0))
+        predicted_probabilities_unnormalised = self.discriminator(torch.Tensor(next_state).unsqueeze(0).to(self.device))
         probability_of_correct_skill = F.softmax(predicted_probabilities_unnormalised)[:, skill]
-        return  probability_of_correct_skill.item(), predicted_probabilities_unnormalised
+        return probability_of_correct_skill.item(), predicted_probabilities_unnormalised
 
     def skill_function(self):
         env = DIAYN_Skill_Wrapper(self.environment, self.num_skills, self)
@@ -104,7 +104,7 @@ class DIAYN_Skill_Wrapper(Wrapper):
     def calculate_new_reward(self, next_state):
         """Calculates an intrinsic reward that encourages maximum exploration. It also keeps track of the discriminator
         outputs so they can be used for training"""
-        probability_correct_skill, disciminator_outputs =  self.meta_agent.get_predicted_probability_of_skill(self.skill, next_state)
+        probability_correct_skill, disciminator_outputs = self.meta_agent.get_predicted_probability_of_skill(self.skill, next_state)
         new_reward = np.log(probability_correct_skill + 1e-8) - np.log(self.prior_probability_of_skill)
         return new_reward, disciminator_outputs
 
