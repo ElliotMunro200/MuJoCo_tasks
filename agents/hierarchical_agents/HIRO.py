@@ -152,7 +152,7 @@ class HIRO_Higher_Level_DDPG_Agent(DDPG):
         and goal as inputs"""
         state_and_goal = torch.from_numpy(np.concatenate((state, goal))).float().unsqueeze(0).to(self.device)
         action_would_have_taken = self.lower_level_policy(state_and_goal).detach()
-        return -0.5 * torch.norm(torch.tensor(action) - action_would_have_taken, 2)**2
+        return -0.5 * torch.norm(torch.tensor(action).to(self.device) - action_would_have_taken, 2)**2
 
 
 class Higher_Level_Agent_Environment_Wrapper(Wrapper):
