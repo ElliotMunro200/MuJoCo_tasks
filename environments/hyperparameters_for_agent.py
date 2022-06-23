@@ -103,7 +103,7 @@ config_hyperparameters = {
         "AGENT": actor_critic_agent_hyperparameters,
         "MANAGER": manager_hyperparameters,
         "num_skills": 10,
-        "num_unsupservised_episodes": 500 # Walker.py has = 100
+        "num_unsupservised_episodes": 750 # Walker.py has = 100
     },
 
     # From Reacher.py

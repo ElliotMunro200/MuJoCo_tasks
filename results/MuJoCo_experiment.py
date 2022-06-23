@@ -1,4 +1,4 @@
-"""Executes a defined run from execute_MuJoCo_experiments.py"""
+"""Executes a defined run from the Config and passed command line args."""
 
 from agents.Trainer import Trainer
 from utilities.data_structures.Config import Config, parse_args

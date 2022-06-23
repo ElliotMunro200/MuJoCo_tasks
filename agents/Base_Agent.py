@@ -11,10 +11,11 @@ from nn_builder.pytorch.NN import NN
 # from tensorboardX import SummaryWriter
 from torch.optim import optimizer
 
+
 class Base_Agent(object):
 
     def __init__(self, config):
-        self.logger = self.setup_logger()
+        # self.logger = self.setup_logger()
         self.debug_mode = config.debug_mode
         # if self.debug_mode: self.tensorboard = SummaryWriter()
         self.config = config
@@ -24,9 +25,7 @@ class Base_Agent(object):
         self.action_types = "DISCRETE" if self.environment.action_space.dtype == np.int64 else "CONTINUOUS"
         self.action_size = int(self.get_action_size())
         self.config.action_size = self.action_size
-
         self.lowest_possible_episode_score = self.get_lowest_possible_episode_score()
-
         self.state_size = int(self.get_state_size())
         self.hyperparameters = config.hyperparameters
         self.average_score_required_to_win = self.get_score_required_to_win()
@@ -43,7 +42,7 @@ class Base_Agent(object):
         self.global_step_number = 0
         self.turn_off_exploration = False
         gym.logger.set_level(40)  # stops it from printing an unnecessary warning
-        self.log_game_info()
+        #self.log_game_info()
 
     def step(self):
         """Takes a step in the game. This method must be overriden by any agent"""
@@ -51,14 +50,19 @@ class Base_Agent(object):
 
     def get_environment_title(self):
         """Extracts name of environment from it"""
+        print(f"ENV RESET TYPE: {self.environment.reset()}")
         try:
             name = self.environment.unwrapped.id
         except AttributeError:
             try:
-                if str(self.environment.unwrapped)[1:11] == "FetchReach": return "FetchReach"
-                elif str(self.environment.unwrapped)[1:8] == "AntMaze": return "AntMaze"
-                elif str(self.environment.unwrapped)[1:7] == "Hopper": return "Hopper"
-                elif str(self.environment.unwrapped)[1:9] == "Walker2d": return "Walker2d"
+                if str(self.environment.unwrapped)[1:11] == "FetchReach":
+                    return "FetchReach"
+                elif str(self.environment.unwrapped)[1:8] == "AntMaze":
+                    return "AntMaze"
+                elif str(self.environment.unwrapped)[1:7] == "Hopper":
+                    return "Hopper"
+                elif str(self.environment.unwrapped)[1:9] == "Walker2d":
+                    return "Walker2d"
                 else:
                     name = self.environment.spec.id.split("-")[0]
             except AttributeError:
@@ -78,17 +82,19 @@ class Base_Agent(object):
         """Gets the action_size for the gym env into the correct shape for a neural network"""
         if "overwrite_action_size" in self.config.__dict__: return self.config.overwrite_action_size
         if "action_size" in self.environment.__dict__: return self.environment.action_size
-        if self.action_types == "DISCRETE": return self.environment.action_space.n
-        else: return self.environment.action_space.shape[0]
+        if self.action_types == "DISCRETE":
+            return self.environment.action_space.n
+        else:
+            return self.environment.action_space.shape[0]
 
     def get_state_size(self):
         """Gets the state_size for the gym env into the correct shape for a neural network"""
         random_state = self.environment.reset()
-        if isinstance(random_state, dict):
-            state_size = random_state["observation"].shape[0] + random_state["desired_goal"].shape[0]
-            return state_size
-        else:
-            return random_state.size
+        # if isinstance(random_state, dict):
+        #     state_size = random_state["observation"].shape[0] + random_state["desired_goal"].shape[0]
+        #     return state_size
+        # else:
+        return random_state.size
 
     def get_score_required_to_win(self):
         """Gets average score required to win game"""
@@ -96,7 +102,8 @@ class Base_Agent(object):
         if self.environment_title in ["AntMaze", "Hopper", "Walker2d"]:
             print("Score required to win set to infinity therefore no learning rate annealing will happen")
             return float("inf")
-        try: return self.environment.unwrapped.reward_threshold
+        try:
+            return self.environment.unwrapped.reward_threshold
         except AttributeError:
             try:
                 return self.environment.spec.reward_threshold
@@ -105,37 +112,41 @@ class Base_Agent(object):
 
     def get_trials(self):
         """Gets the number of trials to average a score over"""
-        try: return self.environment.unwrapped.trials
-        except AttributeError: pass
-        try: return self.environment.spec.trials
-        except AttributeError: return 100
+        try:
+            return self.environment.unwrapped.trials
+        except AttributeError:
+            pass
+        try:
+            return self.environment.spec.trials
+        except AttributeError:
+            return 100
 
-    def setup_logger(self):
-        """Sets up the logger"""
-        filename = "Training.log"
-        try: 
-            if os.path.isfile(filename): 
-                os.remove(filename)
-        except: pass
+    # def setup_logger(self):
+    #     """Sets up the logger"""
+    #     filename = "Training.log"
+    #     try:
+    #         if os.path.isfile(filename):
+    #             os.remove(filename)
+    #     except: pass
+    #
+    #     logger = logging.getLogger(__name__)
+    #     logger.setLevel(logging.INFO)
+    #     # create a file handler
+    #     handler = logging.FileHandler(filename)
+    #     handler.setLevel(logging.INFO)
+    #     # create a logging format
+    #     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    #     handler.setFormatter(formatter)
+    #     # add the handlers to the logger
+    #     logger.addHandler(handler)
+    #     return logger
 
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.INFO)
-        # create a file handler
-        handler = logging.FileHandler(filename)
-        handler.setLevel(logging.INFO)
-        # create a logging format
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        # add the handlers to the logger
-        logger.addHandler(handler)
-        return logger
-
-    def log_game_info(self):
-        """Logs info relating to the game"""
-        for ix, param in enumerate([self.environment_title, self.action_types, self.action_size, self.lowest_possible_episode_score,
-                      self.state_size, self.hyperparameters, self.average_score_required_to_win, self.rolling_score_window,
-                      self.device]):
-            self.logger.info("{} -- {}".format(ix, param))
+    # def log_game_info(self):
+    #     """Logs info relating to the game"""
+    #     for ix, param in enumerate([self.environment_title, self.action_types, self.action_size, self.lowest_possible_episode_score,
+    #                   self.state_size, self.hyperparameters, self.average_score_required_to_win, self.rolling_score_window,
+    #                   self.device]):
+    #         self.logger.info("{} -- {}".format(ix, param))
 
     def set_random_seeds(self, random_seed):
         """Sets all possible random seeds so results can be reproduced"""
@@ -171,7 +182,7 @@ class Base_Agent(object):
         self.episode_achieved_goals = []
         self.episode_observations = []
         if "exploration_strategy" in self.__dict__.keys(): self.exploration_strategy.reset()
-        self.logger.info("Reseting game -- New start state {}".format(self.state))
+        #self.logger.info("Reseting game -- New start state {}".format(self.state))
 
     def track_episodes_data(self):
         """Saves the data from the recent episodes"""
@@ -201,8 +212,7 @@ class Base_Agent(object):
         """Conducts an action in the environment"""
         self.next_state, self.reward, self.done, _ = self.environment.step(action)
         self.total_episode_score_so_far += self.reward
-        if self.hyperparameters["clip_rewards"]: self.reward =  max(min(self.reward, 1.0), -1.0)
-
+        if self.hyperparameters["clip_rewards"]: self.reward = max(min(self.reward, 1.0), -1.0)
 
     def save_and_print_result(self):
         """Saves and prints results of the game"""
@@ -227,15 +237,16 @@ class Base_Agent(object):
     def print_rolling_result(self):
         """Prints out the latest episode results"""
         text = """\r Episode {0}, Score: {3: .1f}, Max score seen: {4: .1f}, Rolling score: {1: .1f}, Max rolling score seen: {2: .1f}\n"""
-        sys.stdout.write(text.format(len(self.game_full_episode_scores), self.rolling_results[-1], self.max_rolling_score_seen,
-                                     self.game_full_episode_scores[-1], self.max_episode_score_seen))
+        sys.stdout.write(
+            text.format(len(self.game_full_episode_scores), self.rolling_results[-1], self.max_rolling_score_seen,
+                        self.game_full_episode_scores[-1], self.max_episode_score_seen))
         sys.stdout.flush()
 
     def show_whether_achieved_goal(self):
         """Prints out whether the agent achieved the environment target goal"""
         index_achieved_goal = self.achieved_required_score_at_index()
         print(" ")
-        if index_achieved_goal == -1: #this means agent never achieved goal
+        if index_achieved_goal == -1:  # this means agent never achieved goal
             print("\033[91m" + "\033[1m" +
                   "{} did not achieve required score \n".format(self.agent_name) +
                   "\033[0m" + "\033[0m")
@@ -251,7 +262,7 @@ class Base_Agent(object):
                 return ix
         return -1
 
-    def update_learning_rate(self, starting_lr,  optimizer):
+    def update_learning_rate(self, starting_lr, optimizer):
         """Lowers the learning rate according to how close we are to the solution"""
         if len(self.rolling_results) > 0:
             last_rolling_score = self.rolling_results[-1]
@@ -267,7 +278,7 @@ class Base_Agent(object):
                 new_lr = starting_lr
             for g in optimizer.param_groups:
                 g['lr'] = new_lr
-        if random.random() < 0.001: self.logger.info("Learning rate {}".format(new_lr))
+            #if random.random() < 0.001: self.logger.info("Learning rate {}".format(new_lr))
 
     def enough_experiences_to_learn_from(self):
         """Boolean indicated whether there are enough experiences in the memory buffer to learn from"""
@@ -282,43 +293,44 @@ class Base_Agent(object):
     def take_optimisation_step(self, optimizer, network, loss, clipping_norm=None, retain_graph=False):
         """Takes an optimisation step by calculating gradients given the loss and then updating the parameters"""
         if not isinstance(network, list): network = [network]
-        optimizer.zero_grad() #reset gradients to 0
-        loss.backward(retain_graph=retain_graph) #this calculates the gradients
-        self.logger.info("Loss -- {}".format(loss.item()))
-        if self.debug_mode: self.log_gradient_and_weight_information(network, optimizer)
+        optimizer.zero_grad()  # reset gradients to 0
+        loss.backward(retain_graph=retain_graph)  # this calculates the gradients
+        #self.logger.info("Loss -- {}".format(loss.item()))
+        #if self.debug_mode: self.log_gradient_and_weight_information(network, optimizer)
         if clipping_norm is not None:
             for net in network:
-                torch.nn.utils.clip_grad_norm_(net.parameters(), clipping_norm) #clip gradients to help stabilise training
-        optimizer.step() #this applies the gradients
+                torch.nn.utils.clip_grad_norm_(net.parameters(),
+                                               clipping_norm)  # clip gradients to help stabilise training
+        optimizer.step()  # this applies the gradients
 
-    def log_gradient_and_weight_information(self, network, optimizer):
-
-        # log weight information
-        total_norm = 0
-        for name, param in network.named_parameters():
-            param_norm = param.grad.data.norm(2)
-            total_norm += param_norm.item() ** 2
-        total_norm = total_norm ** (1. / 2)
-        self.logger.info("Gradient Norm {}".format(total_norm))
-
-        for g in optimizer.param_groups:
-            learning_rate = g['lr']
-            break
-        self.logger.info("Learning Rate {}".format(learning_rate))
-
+    # def log_gradient_and_weight_information(self, network, optimizer):
+    #
+    #     # log weight information
+    #     total_norm = 0
+    #     for name, param in network.named_parameters():
+    #         param_norm = param.grad.data.norm(2)
+    #         total_norm += param_norm.item() ** 2
+    #     total_norm = total_norm ** (1. / 2)
+    #     self.logger.info("Gradient Norm {}".format(total_norm))
+    #     for g in optimizer.param_groups:
+    #         learning_rate = g['lr']
+    #         break
+    #     self.logger.info("Learning Rate {}".format(learning_rate))
 
     def soft_update_of_target_network(self, local_model, target_model, tau):
         """Updates the target network in the direction of the local network but by taking a step size
         less than one so the target network's parameter values trail the local networks. This helps stabilise training"""
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
-            target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
+            target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
 
     def create_NN(self, input_dim, output_dim, key_to_use=None, override_seed=None, hyperparameters=None):
         """Creates a neural network for the agents to use"""
         if hyperparameters is None: hyperparameters = self.hyperparameters
         if key_to_use: hyperparameters = hyperparameters[key_to_use]
-        if override_seed: seed = override_seed
-        else: seed = self.config.seed
+        if override_seed:
+            seed = override_seed
+        else:
+            seed = self.config.seed
 
         default_hyperparameter_choices = {"output_activation": None, "hidden_activations": "relu", "dropout": 0.0,
                                           "initialiser": "default", "batch_norm": False,
@@ -352,7 +364,8 @@ class Base_Agent(object):
         print("Freezing hidden layers")
         for param in network.named_parameters():
             param_name = param[0]
-            assert "hidden" in param_name or "output" in param_name or "embedding" in param_name, "Name {} of network layers not understood".format(param_name)
+            assert "hidden" in param_name or "output" in param_name or "embedding" in param_name, "Name {} of network layers not understood".format(
+                param_name)
             if "output" not in param_name:
                 param[1].requires_grad = False
 

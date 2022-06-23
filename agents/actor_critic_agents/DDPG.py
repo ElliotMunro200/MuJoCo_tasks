@@ -104,7 +104,7 @@ class DDPG(Base_Agent):
 
     def actor_learn(self, states):
         """Runs a learning iteration for the actor"""
-        if self.done: #we only update the learning rate at end of each episode
+        if self.done: # we only update the learning rate at end of each episode
             self.update_learning_rate(self.hyperparameters["Actor"]["learning_rate"], self.actor_optimizer)
         actor_loss = self.calculate_actor_loss(states)
         self.take_optimisation_step(self.actor_optimizer, self.actor_local, actor_loss,
