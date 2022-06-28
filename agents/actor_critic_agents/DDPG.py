@@ -34,11 +34,8 @@ class DDPG(Base_Agent):
             # print("State ", self.state.shape)
             self.action = self.pick_action()
             self.conduct_action(self.action)
-            if self.time_for_critic_and_actor_to_learn():
-                for _ in range(self.hyperparameters["learning_updates_per_learning_session"]):
-                    states, actions, rewards, next_states, dones = self.sample_experiences()
-                    self.critic_learn(states, actions, rewards, next_states, dones)
-                    self.actor_learn(states)
+            if self.time_to_learn():
+                self.learn()
             self.save_experience()
             self.state = self.next_state #this is to set the state for the next iteration
             self.episode_step_number += 1
@@ -56,9 +53,30 @@ class DDPG(Base_Agent):
         self.actor_local.eval()
         with torch.no_grad():
             action = self.actor_local(state).cpu().data.numpy()
+        # setting the network to training mode. Some layers like Dropout and Batch-norm act differently between modes.
         self.actor_local.train()
         action = self.exploration_strategy.perturb_action_for_exploration_purposes({"action": action})
         return action.squeeze(0)
+
+    def learn(self):
+        states, actions, rewards, next_states, dones = self.sample_experiences()
+        for _ in range(self.hyperparameters["learning_updates_per_learning_session"]):
+            self.actor_learn(states)
+        if self.time_for_critic_and_all_targets_to_learn():
+            for _ in range(self.hyperparameters["learning_updates_per_learning_session"]):
+                self.critic_learn(states, actions, rewards, next_states, dones)
+                self.soft_update_of_target_network(self.actor_local, self.actor_target,
+                                                   self.hyperparameters["Actor"]["tau"])
+
+    def time_to_learn(self):
+        """Returns boolean indicating whether there are enough experiences to learn from and it is time to learn for the
+        actor and critic"""
+        return self.enough_experiences_to_learn_from() and self.global_step_number % self.hyperparameters["update_every_n_steps"] == 0
+
+    def time_for_critic_and_all_targets_to_learn(self):
+        """Returns boolean indicating whether there are enough experiences to learn from and it is time to learn for the
+        actor and critic"""
+        return self.global_step_number % (self.hyperparameters["update_every_n_steps"] * self.hyperparameters["target_update_delay"]) == 0
 
     def critic_learn(self, states, actions, rewards, next_states, dones):
         """Runs a learning iteration for the critic"""
@@ -97,11 +115,6 @@ class DDPG(Base_Agent):
         critic_expected = self.critic_local(torch.cat((states, actions), 1))
         return critic_expected
 
-    def time_for_critic_and_actor_to_learn(self):
-        """Returns boolean indicating whether there are enough experiences to learn from and it is time to learn for the
-        actor and critic"""
-        return self.enough_experiences_to_learn_from() and self.global_step_number % self.hyperparameters["update_every_n_steps"] == 0
-
     def actor_learn(self, states):
         """Runs a learning iteration for the actor"""
         if self.done: # we only update the learning rate at end of each episode
@@ -109,7 +122,6 @@ class DDPG(Base_Agent):
         actor_loss = self.calculate_actor_loss(states)
         self.take_optimisation_step(self.actor_optimizer, self.actor_local, actor_loss,
                                     self.hyperparameters["Actor"]["gradient_clipping_norm"])
-        self.soft_update_of_target_network(self.actor_local, self.actor_target, self.hyperparameters["Actor"]["tau"])
 
     def calculate_actor_loss(self, states):
         """Calculates the loss for the actor"""

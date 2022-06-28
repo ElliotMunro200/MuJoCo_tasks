@@ -38,6 +38,7 @@ actor_critic_agent_hyperparameters = {
     "action_noise_clipping_range": 0.5,  # for TD3
     "update_every_n_steps": 1,
     "learning_updates_per_learning_session": 1,
+    "target_update_delay": 1,
     "automatically_tune_entropy_hyperparameter": True,
     "entropy_term_weight": None,
     "add_extra_noise": False,
@@ -137,6 +138,7 @@ config_hyperparameters = {
             "action_noise_clipping_range": 0.5,  # for TD3
             "update_every_n_steps": 20,
             "learning_updates_per_learning_session": 10,
+            "target_update_delay": 2,
             "clip_rewards": False,
             "max_lower_level_timesteps": 5
         },
@@ -170,6 +172,7 @@ config_hyperparameters = {
             "action_noise_std": 0.2,  # for TD3
             "action_noise_clipping_range": 0.5,  # for TD3
             "update_every_n_steps": 20,
+            "target_update_delay": 2,
             "learning_updates_per_learning_session": 10,
             "clip_rewards": False,
             "max_lower_level_timesteps": 5,
@@ -267,6 +270,7 @@ config_hyperparameters_reacher_AC = {
         "action_noise_std": 0.2,  # for TD3
         "action_noise_clipping_range": 0.5,  # for TD3
         "update_every_n_steps": 1,
+        "target_update_delay": 1,
         "learning_updates_per_learning_session": 1,
         "clip_rewards": False,
         "automatically_tune_entropy_hyperparameter": True,
@@ -281,7 +285,7 @@ config_hyperparameters_reacher_AC = {
 
 
 
-def chosen_hyperparameters(env_id, env_type, agent_group):
+def chosen_hyperparameters(env_id, env_type, agent_group, agent_name):
     # Can use env_type later to refine hyperparameter choices further.
     assert env_type is not None
     default_hypers = copy.deepcopy(config_hyperparameters[agent_group])
@@ -294,6 +298,8 @@ def chosen_hyperparameters(env_id, env_type, agent_group):
         default_hypers["update_every_n_steps"] = 20
         default_hypers["learning_updates_per_learning_session"] = 10
         default_hypers["add_extra_noise"] = True
+    elif agent_name == "TD3":
+        default_hypers["target_update_delay"] = 2
     elif env_id == "Reacher-v4" and agent_group == "Actor_Critic_Agents":
         default_hypers = copy.deepcopy(config_hyperparameters_reacher_AC[agent_group])
     specific_hypers = default_hypers

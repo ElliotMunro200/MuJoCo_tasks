@@ -11,7 +11,7 @@ class Config(object):
         self.env_type = env_dict(self.env_id, "type")
         self.agent_group = agent_dict(self.agent_name, "group")
         self.agent_class = agent_dict(self.agent_name, "class")
-        self.hyperparameters = def_hps(self.env_id, self.env_type, self.agent_group)
+        self.hyperparameters = def_hps(self.env_id, self.env_type, self.agent_group, self.agent_name)
         self.randomise_random_seed = args.randomise_random_seed
         self.seed = set_seed(self.randomise_random_seed, args.seed)
         self.run_name = name_of_run(self.env_id, self.agent_name, self.seed, args.run_name)

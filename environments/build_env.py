@@ -66,9 +66,9 @@ def agent_dict(agent_name, key):
     return agent_info
 
 
-def def_hps(env_id, env_type, agent_group):
+def def_hps(env_id, env_type, agent_group, agent_name):
     # need to make specific imports from a hyperparameters file that returns a dict based on args
-    agent_hyperparameters = chosen_hyperparameters(env_id, env_type, agent_group)
+    agent_hyperparameters = chosen_hyperparameters(env_id, env_type, agent_group, agent_name)
 
     return agent_hyperparameters
 
