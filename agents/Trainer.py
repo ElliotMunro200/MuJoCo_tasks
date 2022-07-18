@@ -18,7 +18,12 @@ class Trainer(object):
         self.agent_group = config.agent_group
         self.agent_class = config.agent_class
         self.seed = config.seed
+        self.num_episodes_per_run = config.num_episodes_per_run
         self.hyperparameters = config.hyperparameters
+        self.wandb = config.wandb
+        self.capture_video = config.capture_video
+        self.GPU = config.GPU
+        self.run_name = config.run_name
 
     def run_game_for_agent(self):
         """Runs a game for a given agent, saving the results in self.results"""
@@ -29,10 +34,13 @@ class Trainer(object):
         print(f"AGENT NAME: {self.agent_name}")
         print(f"AGENT GROUP: {self.agent_group}")
         print(f"RANDOM SEED: {self.seed}")
+        print(f"NUM EPISODES PER RUN: {self.num_episodes_per_run}")
         print(f"HYPERPARAMETERS: {self.hyperparameters}")
-                # make the verbosity general across agent types. Below is only for AC methods.
-              # f"\n {actor_str}: {self.hyperparameters[actor_str]} "
-              # f"\n {critic_str}: {self.hyperparameters[critic_str]}")
+        print(f"WANDB: {self.wandb}")
+        print(f"CAPTURE VIDEO: {self.capture_video}")
+        print(f"GPU: {self.GPU}")
+        print(f"RUN NAME: {self.run_name}")
+
 
         agent_results = []
         agent_config = self.config
