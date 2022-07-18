@@ -138,11 +138,12 @@ class SAC(Base_Agent):
     def produce_action_and_action_info(self, state):
         """Given the state, produces an action, the log probability of the action, and the tanh of the mean action"""
         actor_output = self.actor_local(state)
+        # we do this to make the Actor soft, i.e. a probability distribution.
         mean, log_std = actor_output[:, :self.action_size], actor_output[:, self.action_size:]
         std = log_std.exp()
         normal = Normal(mean, std)
         x_t = normal.rsample()  # rsample means it is sampled using reparameterisation trick
-        action = torch.tanh(x_t)
+        action = torch.tanh(x_t)  # to scale in range [-1,1].
         log_prob = normal.log_prob(x_t)
         log_prob -= torch.log(1 - action.pow(2) + EPSILON)
         log_prob = log_prob.sum(1, keepdim=True)

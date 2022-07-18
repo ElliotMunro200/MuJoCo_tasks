@@ -195,6 +195,7 @@ class Base_Agent(object):
     def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True):
         """Runs game to completion (one episode) n times and then summarises results and saves model (if asked to)"""
         if num_episodes is None: num_episodes = self.config.num_episodes_per_run
+        self.environment.episode_id += 1
         start = time.time()
         while self.episode_number < num_episodes:
             # sets up for new episode
