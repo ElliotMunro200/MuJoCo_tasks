@@ -25,6 +25,10 @@ class Trainer(object):
         self.GPU = config.GPU
         self.run_name = config.run_name
 
+    #def prof(self):
+    #    import cProfile as profile
+    #    profile.runctx('self.run_game_for_agent()', globals(), locals(), 'results/cProfileDumps/reacher1k.profile')
+
     def run_game_for_agent(self):
         """Runs a game for a given agent, saving the results in self.results"""
         actor_str = "Actor"
@@ -35,12 +39,11 @@ class Trainer(object):
         print(f"AGENT GROUP: {self.agent_group}")
         print(f"RANDOM SEED: {self.seed}")
         print(f"NUM EPISODES PER RUN: {self.num_episodes_per_run}")
-        print(f"HYPERPARAMETERS: {self.hyperparameters}")
         print(f"WANDB: {self.wandb}")
         print(f"CAPTURE VIDEO: {self.capture_video}")
         print(f"GPU: {self.GPU}")
         print(f"RUN NAME: {self.run_name}")
-
+        print(f"HYPERPARAMETERS: {self.hyperparameters}")
 
         agent_results = []
         agent_config = self.config

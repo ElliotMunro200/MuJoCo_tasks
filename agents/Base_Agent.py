@@ -21,6 +21,7 @@ class Base_Agent(object):
         self.config = config
         self.set_random_seeds(config.seed)
         self.environment = config.environment()
+        if config.capture_video: self.environment.episode_id += 1
         self.environment_title = self.get_environment_title()
         self.action_types = "DISCRETE" if self.environment.action_space.dtype == np.int64 else "CONTINUOUS"
         self.action_size = int(self.get_action_size())
@@ -85,6 +86,7 @@ class Base_Agent(object):
         if self.action_types == "DISCRETE":
             return self.environment.action_space.n
         else:
+            print(f"ACTION SPACE: {self.environment.action_space.shape[0]}")
             return self.environment.action_space.shape[0]
 
     def get_state_size(self):
@@ -195,7 +197,6 @@ class Base_Agent(object):
     def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True):
         """Runs game to completion (one episode) n times and then summarises results and saves model (if asked to)"""
         if num_episodes is None: num_episodes = self.config.num_episodes_per_run
-        self.environment.episode_id += 1
         start = time.time()
         while self.episode_number < num_episodes:
             # sets up for new episode
