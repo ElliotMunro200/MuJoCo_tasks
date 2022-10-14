@@ -97,15 +97,17 @@ def name_of_run(env_id, agent_name, seed, given_name):
     return name
 
 
-def build_env(env_id, env_type, agent_name, capture_video, run_name):
+def build_env(env_id, env_type, agent_name, max_ep_steps, capture_video, run_name):
     def thunk():
 
         if env_type == "Basic":
-            env = gym.make(env_id)
+            env = gym.make(env_id, terminate_when_unhealthy=True,
+                           exclude_current_positions_from_observation=False,
+                           max_episode_steps=max_ep_steps)
             print("[~~Basic~~Env~~Built~~]")
         elif env_type == "AntNav":
             # returns a wrapped AntNav gym env
-            env = create_maze_env(env_id)
+            env = create_maze_env(env_id, max_episode_steps=max_ep_steps)
             print("[~~AntNav~~Env~~Built~~]")
         else:
             raise ValueError("Wrong environment name")

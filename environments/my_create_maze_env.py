@@ -21,7 +21,7 @@ from gym.wrappers import TimeLimit
 
 
 #@gin.configurable
-def create_maze_env(env_name=None, top_down_view=False, max_episode_steps=500):
+def create_maze_env(env_name=None, top_down_view=False, max_episode_steps=1000):
   n_bins = 0
   manual_collision = False
   if env_name.startswith('Ego'):

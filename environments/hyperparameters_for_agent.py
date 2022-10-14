@@ -181,6 +181,80 @@ config_hyperparameters = {
         }
     },
 
+    # Copied from HIRO above
+    "IG": {
+        "LOWER_LEVEL": {
+            "Actor": {
+                "learning_rate": 0.001,
+                "linear_hidden_units": [20, 20],
+                "final_layer_activation": "TANH",
+                "batch_norm": False,
+                "tau": 0.005,
+                "gradient_clipping_norm": 5
+            },
+
+            "Critic": {
+                "learning_rate": 0.01,
+                "linear_hidden_units": [20, 20],
+                "final_layer_activation": "None",
+                "batch_norm": False,
+                "buffer_size": 100000,
+                "tau": 0.005,
+                "gradient_clipping_norm": 5
+            },
+
+            "batch_size": 256,
+            "discount_rate": 0.9,
+            "mu": 0.0,  # for O-H noise
+            "theta": 0.15,  # for O-H noise
+            "sigma": 0.25,  # for O-H noise
+            "action_noise_std": 0.2,  # for TD3
+            "action_noise_clipping_range": 0.5,  # for TD3
+            "update_every_n_steps": 20,
+            "learning_updates_per_learning_session": 10,
+            "target_update_delay": 2,
+            "clip_rewards": False,
+            "max_lower_level_timesteps": 5
+        },
+
+        "HIGHER_LEVEL": {
+            "Actor": {
+                "learning_rate": 0.001,
+                "linear_hidden_units": [20, 20],
+                "final_layer_activation": "TANH",
+                "batch_norm": False,
+                "tau": 0.005,
+                "gradient_clipping_norm": 5
+            },
+
+            "Critic": {
+                "learning_rate": 0.01,
+                "linear_hidden_units": [20, 20],
+                "final_layer_activation": "None",
+                "batch_norm": False,
+                "buffer_size": 100000,
+                "tau": 0.005,
+                "gradient_clipping_norm": 5
+            },
+
+            "batch_size": 256,
+            "discount_rate": 0.9,
+            "mu": 0.0,  # for O-H noise
+            "theta": 0.15,  # for O-H noise
+            "sigma": 0.25,  # for O-H noise
+            "action_noise_std": 0.2,  # for TD3
+            "action_noise_clipping_range": 0.5,  # for TD3
+            "update_every_n_steps": 20,
+            "target_update_delay": 2,
+            "learning_updates_per_learning_session": 10,
+            "clip_rewards": False,
+
+            "max_lower_level_timesteps": 5,
+            "number_goal_candidates": 5 # What should this value be?
+
+        }
+    },
+
     # From Long_Corridor.py
     "SNN_HRL": {
         "SKILL_AGENT": {

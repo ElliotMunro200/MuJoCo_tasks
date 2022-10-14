@@ -9,6 +9,7 @@ class Config(object):
         self.agent_name = args.agent_name
         assert self.agent_name in env_dict(self.env_id, "agents")
         self.env_type = env_dict(self.env_id, "type")
+        self.max_ep_steps = args.max_ep_steps
         self.agent_group = agent_dict(self.agent_name, "group")
         self.agent_class = agent_dict(self.agent_name, "class")
         self.hyperparameters = def_hps(self.env_id, self.env_type, self.agent_group, self.agent_name)
@@ -17,7 +18,8 @@ class Config(object):
         self.run_name = name_of_run(self.env_id, self.agent_name, self.seed, args.run_name)
         self.num_episodes_per_run = args.num_episodes_per_run
         self.capture_video = args.capture_video
-        self.environment = build_env(self.env_id, self.env_type, self.agent_name, self.capture_video, self.run_name)
+        self.environment = build_env(self.env_id, self.env_type, self.agent_name,
+                                     self.max_ep_steps, self.capture_video, self.run_name)
         self.wandb = args.wandb
         self.wandb_project_name = args.wandb_project_name
         self.wandb_entity = args.wandb_entity
@@ -29,6 +31,7 @@ class Config(object):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--env_id", type=str, default="Walker2d-v4", help="The env ID")
+    parser.add_argument("--max_ep_steps", type=int, default=5, help="The maximum episode length")
     parser.add_argument("--agent_name", type=str, default="DDPG", help="Agent algo name")
     parser.add_argument("--randomise_random_seed", action='store_true', help="Use unknown random seeds?")
     parser.add_argument("--seed", type=int, default=1, help="The experiment seed")
